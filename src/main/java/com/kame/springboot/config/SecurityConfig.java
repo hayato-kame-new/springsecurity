@@ -71,6 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        .password("$2a$10$E55vg96856cWy4oyAUpQ6OH2mxO6eTt43A5lPwa3MszPbDpAOPiLG")
 //        .roles("USER");
         
+        System.out.println(new BCryptPasswordEncoder().encode("password"));  // $2a$10$Xkh2so4PdKf23/3CCJraK.pxF8QOiYs9PUS1y3hRQxtlQ8qTK/KEa
         // パスワードは平文ではなく、ハッシュ化した文字列を記載する必要があります。
         // あらかじめハッシュ化した文字列を指定したい場合は、どこか適宜の場所に次のコードを書けば、コンソール画面から取得できます。
         // System.out.println(new BCryptPasswordEncoder().encode("123456"));
@@ -93,6 +94,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .loginPage("/login")
             .defaultSuccessUrl("/")
             .permitAll();
+        
+        // logout() メソッドでログアウト機能を有効にして、permitAll() で全てのユーザーに対してログアウト機能に関するアクセス権を付与しています。
+        http.logout()
+        .permitAll();
     }
 
 }
