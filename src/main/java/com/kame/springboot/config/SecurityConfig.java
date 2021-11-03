@@ -3,6 +3,8 @@ package com.kame.springboot.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -40,6 +42,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+	@Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers("/css/**");
+    }
 	/**
 	 * このサンプルコードは、ユーザー名が「yama3」、パスワードは「123456」の場合です。
 パスワードは「ハッシュ化された文字列」をセットする必要がありますので、BCryptPasswordEncoder の encode メソッドでハッシュ化しています。
@@ -69,7 +75,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // あらかじめハッシュ化した文字列を指定したい場合は、どこか適宜の場所に次のコードを書けば、コンソール画面から取得できます。
         // System.out.println(new BCryptPasswordEncoder().encode("123456"));
     }
-	
-	
+    
+    
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+    	// 「全てのリクエストの承認は、ログインしていることが条件」
+        http.authorizeRequests()
+            .anyRequest()
+            .authenticated();
+        
+        // formLogin メソッドでフォーム認証を使用することを指定しています。
+        // loginPage メソッドでログイン画面のURLを /login と指定し、defaultSuccessUrl メソッドで認証後にリダイレクトされるページを指定し、
+        // permitAll メソッドで全てのユーザーにアクセスの許可を与えています。
+        // なお、Spring Security では、フォーム認証のほか、Basic 認証、Digest 認証、Remember Me 認証用のサーブレットフィルタクラスも提供されています（Spring 徹底入門423ページ）。
+
+        http.formLogin()
+            .loginPage("/login")
+            .defaultSuccessUrl("/")
+            .permitAll();
+    }
 
 }
