@@ -1,5 +1,6 @@
 package com.kame.springboot.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -7,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -24,6 +26,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity  // これを指定することで Spring Security の機能が有効化されます
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
+	@Autowired
+    private UserDetailsService userDetailsService;
 	// com.kame.springboot.config パッケージを作って、そこに作る
 	// このクラスには「Spring Securityの設定情報が定義されており、対象のメソッドをオーバーライドすることで設定を変更することができる
 	
@@ -51,17 +55,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 パスワードは「ハッシュ化された文字列」をセットする必要がありますので、BCryptPasswordEncoder の encode メソッドでハッシュ化しています。
 
 当然ですが、次のように、ハッシュ化されたパスワードを直接記載しても、問題なく動作します。 
+データベース使用の時には、下の１行だけが必要です
+auth.userDetailsService(userDetailsService);  この１行だけが必要です
 	 */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    	 // System.out.println(new BCryptPasswordEncoder().encode("123456"));
-    	
+    	   	
     	// DB はまだ使わないので、inMemoryAuthentication というメソッドを使用して、メモリ内にユーザー情報を格納して認証を行うようにしています。
     	// ユーザー名、パスワード等は、次の形で指定します。
-        auth.inMemoryAuthentication()  // メモリ内認証を追加する
-            .withUser("yama3")  // ユーザー名を指定 これをログイン画面で打ち込めばログインできる
-            .password(passwordEncoder().encode("123456"))  // パスワードを指定（ハッシュ化されたもの） この 123456を打ち込めばログインできる
-            .roles("USER"); // ユーザーが保持する権限情報を指定
+    	// データベースを使うときは、auth.userDetailsService(userDetailsService);だけを記入しますので
+    	// ここから4行コメントアウトしてください
+    	
+//        auth.inMemoryAuthentication()  // メモリ内認証を追加する
+//            .withUser("yama3")  // ユーザー名を指定 これをログイン画面で打ち込めばログインできる
+//            .password(passwordEncoder().encode("123456"))  // パスワードを指定（ハッシュ化されたもの） この 123456を打ち込めばログインできる
+//            .roles("USER"); // ユーザーが保持する権限情報を指定
+             
         // これでhttp://localhost:8080/ にアクセスしてユーザー名とパスワードを入力します。ログイン成功する
         
         //  auth.inMemoryAuthentication().withUser(ユーザー名).password(パスワード).roles(権限情報);
@@ -71,10 +80,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        .password("$2a$10$E55vg96856cWy4oyAUpQ6OH2mxO6eTt43A5lPwa3MszPbDpAOPiLG")
 //        .roles("USER");
         
-        System.out.println(new BCryptPasswordEncoder().encode("password"));  // $2a$10$Xkh2so4PdKf23/3CCJraK.pxF8QOiYs9PUS1y3hRQxtlQ8qTK/KEa
+      //  System.out.println(new BCryptPasswordEncoder().encode("password"));  // $2a$10$Xkh2so4PdKf23/3CCJraK.pxF8QOiYs9PUS1y3hRQxtlQ8qTK/KEa
         // パスワードは平文ではなく、ハッシュ化した文字列を記載する必要があります。
         // あらかじめハッシュ化した文字列を指定したい場合は、どこか適宜の場所に次のコードを書けば、コンソール画面から取得できます。
         // System.out.println(new BCryptPasswordEncoder().encode("123456"));
+    	
+    	auth.userDetailsService(userDetailsService);  // データベースのときはこの１行だけ必要
     }
     
     
@@ -98,6 +109,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // logout() メソッドでログアウト機能を有効にして、permitAll() で全てのユーザーに対してログアウト機能に関するアクセス権を付与しています。
         http.logout()
         .permitAll();
+        
+       //  メソッドチェーンでこう書きます こっちの方がいいです
+//        http.authorizeRequests().anyRequest().authenticated().and()
+//        .formLogin().loginPage("/login").defaultSuccessUrl("/").permitAll().and()
+//        .logout().permitAll();
+        
     }
 
 }
