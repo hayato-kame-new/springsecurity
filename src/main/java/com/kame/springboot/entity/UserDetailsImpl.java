@@ -13,7 +13,7 @@ public class UserDetailsImpl implements UserDetails {
 	private static final long serialVersionUID = -2054376501550251092L;
 	
 	// 3つのフィールド変数を追加
-	private String username;
+	private String username;  // カラムは、name
     private String password;
     private Collection<GrantedAuthority> authorities;
 

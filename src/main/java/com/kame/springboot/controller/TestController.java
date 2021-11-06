@@ -39,6 +39,12 @@ public class TestController {
         if (result.hasErrors()) {
             return "signup";
         }
+        
+        // true: 同一ユーザーが存在する
+        if (userDetailsServiceImpl.isExistUser(signupForm.getUsername())) {
+            model.addAttribute("signupError", "ユーザー名 " + signupForm.getUsername() + "は既に登録されています");
+            return "signup";
+        }
 
         try {
             userDetailsServiceImpl.register(signupForm.getUsername(), signupForm.getPassword(), "ROLE_USER");

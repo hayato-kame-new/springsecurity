@@ -50,5 +50,22 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         String sql = "INSERT INTO users(name, password, authority) VALUES(?, ?, ?)";
         jdbcTemplate.update(sql, username, passwordEncoder.encode(password), authority);
     }
+    
+    
+    /**
+     * データベースに同一ユーザー名が既に登録されているかを確認する
+     * JdbcTemplate の queryForObject メソッドを使用してデータベース内の検索結果を取得
+     * 同一ユーザー名が存在すれば true、存在しなければ　false を返します
+     * @param username
+     * @return true:同一ユーザー名が存在する<br /> false:存在しない
+     */
+    public boolean isExistUser(String username) { // からむは nameになってる
+        String sql = "SELECT COUNT(*) FROM users WHERE name = ?";  // users テーブル名
+        int count = jdbcTemplate.queryForObject(sql, Integer.class, new Object[] { username });
+        if (count == 0) {
+            return false;
+        }
+        return true;
+    }
 }
 
