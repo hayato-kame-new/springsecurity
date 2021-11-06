@@ -9,6 +9,19 @@
 <body>
 <h2>Sample Page</h2>
 
+<!-- ログイン中のユーザー情報を取得して表示する -->
+<!-- この機能を使用するには、thymeleaf-extras-springsecurity5 が必要となりますが、
+基本的にはプロジェクトの作成時に、Maven プロジェクト（pom.xml ファイル）に追加されている -->
+
+<!-- なお、現在やり取りをしている プリンシパル（認証主体：principal）を取得することで、次のようにユーザー名、パスワード、権限情報を取得することもできます。 -->
+
+<div th:text="'こんにちは ' + ${#authentication.name} + ' さん'"></div>
+
+<div th:text="${#authentication.principal.username}"></div>  <!-- ユーザー名を表示 -->
+    <div th:text="${#authentication.principal.password}"></div>   <!-- ハッシュ後のパスワードを表示 セキュリティに注意 -->
+    <div th:text="${#authentication.principal.authorities}"></div>   <!-- 権限情報を表示 -->
+
+
 	<form th:action="@{/logout}" method="post">
         <input type="submit" value="ログアウト" />
     </form>
