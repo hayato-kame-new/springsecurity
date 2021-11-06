@@ -91,29 +91,38 @@ auth.userDetailsService(userDetailsService);  この１行だけが必要です
     
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-    	// 「全てのリクエストの承認は、ログインしていることが条件」
-        http.authorizeRequests()
-            .anyRequest()
-            .authenticated();
+    	// １つ目「全てのリクエストの承認は、ログインしていることが条件」
+//        http.authorizeRequests()
+//            .anyRequest()
+//            .authenticated();
         
         // formLogin メソッドでフォーム認証を使用することを指定しています。
         // loginPage メソッドでログイン画面のURLを /login と指定し、defaultSuccessUrl メソッドで認証後にリダイレクトされるページを指定し、
         // permitAll メソッドで全てのユーザーにアクセスの許可を与えています。
         // なお、Spring Security では、フォーム認証のほか、Basic 認証、Digest 認証、Remember Me 認証用のサーブレットフィルタクラスも提供されています（Spring 徹底入門423ページ）。
 
-        http.formLogin()
-            .loginPage("/login")
-            .defaultSuccessUrl("/")
-            .permitAll();
+    	// 二つ目
+//        http.formLogin()
+//            .loginPage("/login")
+//            .defaultSuccessUrl("/")
+//            .permitAll();
         
-        // logout() メソッドでログアウト機能を有効にして、permitAll() で全てのユーザーに対してログアウト機能に関するアクセス権を付与しています。
-        http.logout()
-        .permitAll();
+        // ３つ目logout() メソッドでログアウト機能を有効にして、permitAll() で全てのユーザーに対してログアウト機能に関するアクセス権を付与しています。
+//        http.logout()
+//        .permitAll();
         
-       //  メソッドチェーンでこう書きます こっちの方がいいです
-//        http.authorizeRequests().anyRequest().authenticated().and()
+       // １つ目２つ目３つ目を メソッドチェーンでこう書きます こっちの方がいいです 
+//        http.authorizeRequests()
+//        .anyRequest().authenticated().and()
 //        .formLogin().loginPage("/login").defaultSuccessUrl("/").permitAll().and()
 //        .logout().permitAll();
+    	
+    	// １つ目２つ目３つ目に さらに新規登録を追加
+    	http.authorizeRequests()
+        .antMatchers("/signup").permitAll()
+        .anyRequest().authenticated().and()
+        .formLogin().loginPage("/login").defaultSuccessUrl("/").permitAll().and()
+        .logout().permitAll();
         
     }
 

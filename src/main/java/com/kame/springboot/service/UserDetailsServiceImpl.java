@@ -11,7 +11,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kame.springboot.entity.UserDetailsImpl;
 
@@ -20,11 +22,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
     JdbcTemplate jdbcTemplate;
+	
+	// 追加 ユーザー新規登録の時に必要 ＠Autowired アノテーションを使用して、SecurityConfig クラスで Bean 定義した PasswordEncode を取得します。
+	@Autowired
+    PasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
-        	// カラム の名前は小文字にして
+        	// カラム の名前は小文字にして テーブル名は users です user ではない
             String sql = "SELECT * FROM users WHERE name = ?";  // PostgreSQLはuserが使えないので usersにしてます
             Map<String, Object> map = jdbcTemplate.queryForMap(sql, username);
             String password = (String)map.get("password");
@@ -34,6 +40,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         } catch (Exception e) {
             throw new UsernameNotFoundException("user not found.", e);
         }
+    }
+    
+ // カラム の名前は小文字にして テーブル名は users です user ではない
+    // JdbcTemplate の update メソッドで、データベースにユーザー情報を登録します
+    // パスワードは、PasswordEncoder（BCrypt）でハッシュ化しておきます
+    @Transactional
+    public void register(String username, String password, String authority) {
+        String sql = "INSERT INTO users(name, password, authority) VALUES(?, ?, ?)";
+        jdbcTemplate.update(sql, username, passwordEncoder.encode(password), authority);
     }
 }
 
