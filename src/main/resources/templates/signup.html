@@ -13,8 +13,10 @@
         </div>
         <label for="username">ユーザー名</label>
         <input type="text" id="username" name="username" th:value="${signupForm.username}"><br>
+        <div th:if="${#fields.hasErrors('username')}" th:errors="${signupForm.username}"></div>
         <label for="password">パスワード</label>
         <input type="password" id="password" name="password" th:value="${signupForm.password}"><br>
+        <div th:if="${#fields.hasErrors('password')}" th:errors="${signupForm.password}"></div>
         <button type="submit">登録</button>
     </form>
     <a href="/login">ログイン画面</a>
