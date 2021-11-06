@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+// security.core.annotationの方です
+// import org.springframework.security.core.annotation.AuthenticationPrincipal;  // こっちです消されないようにコメントアウトでコピーしただけです
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.kame.springboot.entity.UserDetailsImpl;
 import com.kame.springboot.form.SignupForm;
 import com.kame.springboot.service.UserDetailsServiceImpl;
 
@@ -27,10 +31,44 @@ public class TestController {
     @Autowired
     private UserDetailsServiceImpl userDetailsServiceImpl;
 
+    
+    /**
+     * SecurityContextHolder からユーザー情報を取得する
+     * @return "index"
+     */
+//    @GetMapping
+//    public String index() {
+//    	
+//    	// SecurityContextHolder からユーザー情報を取得する
+//    	// ユーザー情報を SecurityContextHolder から取得することもできます
+//    	 // SecurityContextHolderからAuthenticationオブジェクトを取得
+//    	SecurityContext context = SecurityContextHolder.getContext();
+//        Authentication authentication = context.getAuthentication();
+//
+//        // Authenticationオブジェクトからユーザー情報を取得
+//        System.out.println(authentication.getName());  // ユーザー名を表示
+//        System.out.println(authentication.getAuthorities());  // 権限情報を表示
+//        
+//     // Authenticationオブジェクトからユーザー情報を取得
+//        UserDetails principal = (UserDetails) authentication.getPrincipal();
+//        System.out.println(principal.getUsername());  // ユーザー名を表示
+//        System.out.println(principal.getPassword());  // パスワードを表示
+//        System.out.println(principal.getAuthorities());  // 権限情報を表示
+//           	
+//        return "index";
+//    }
+    
+    //  ＠AuthenticationPrincipal からユーザー情報を取得する
+    // ユーザー情報は、アノテーション ＠AuthenticationPrincipal を使用すると、より簡単に取得することができます
+    // TestController のindex メソッドを変更すると import org.springframework.security.core.annotation.AuthenticationPrincipal;
     @GetMapping
-    public String index() {
+    public String index(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        System.out.println(userDetails.getUsername());  // ユーザー名を表示
+        System.out.println(userDetails.getPassword());  // パスワードを表示
+        System.out.println(userDetails.getAuthorities().toString());  // 権限情報を表示
         return "index";
     }
+    
 
     @GetMapping("/login")
     public String login() {
